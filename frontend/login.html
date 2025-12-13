@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Library System - Login</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+  <link rel="stylesheet" href="style.css" /> <!-- Assumes you have a style.css file -->
+  <style>
+    .brand-logo { max-height: clamp(24px, 6vw, 44px); height: auto; width: auto; object-fit: contain; display: block; }
+    .navbar-brand { min-width: 0; }
+    .brand-text { white-space: nowrap; }
+    /* Optional card background if you use .glass elsewhere */
+    .glass { backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); background: rgba(255,255,255,0.65); border-radius: 1rem; box-shadow: 0 8px 30px rgba(0,0,0,0.08); }
+  </style>
+</head>
+<body>
+  <!-- Top Navbar Layout -->
+  <nav class="navbar navbar-expand-lg bg-dark navbar-dark">
+    <div class="container-lg">
+      <a href="#" class="navbar-brand d-flex align-items-center gap-2">
+        <span class="brand-text fw-semibold">Library System</span>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav"
+              aria-controls="nav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse mt-3 mt-lg-0" id="nav">
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link active" href="#" aria-current="page">Home</a></li> <!-- NOTE: This link is currently '#' -->
+          <li class="nav-item"><a class="nav-link" href="books_management.html">Books Management</a></li> <!-- Assuming your books management page is named this -->
+          <li class="nav-item"><a class="nav-link" href="others.html">Others</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Login Card -->
+  <div class="container-fluid glass mt-5 mx-auto p-4 p-md-5" style="width: 70%; max-width: 980px;">
+    <h2 class="text-center mt-1">Welcome to the Library System</h2>
+    <p class="text-center text-muted mb-4">Please sign in to continue</p>
+
+    <!-- Login form (front-end only; no validation, no submit yet) -->
+    <form class="mx-auto px-3 mt-4" style="max-width: 520px;" id="loginForm">
+      <!-- Account -->
+      <div class="mb-3">
+        <label for="account" class="form-label">Account</label>
+        <input
+          type="text"
+          class="form-control"
+          id="account"
+          name="account"
+          placeholder="Enter your account ID"
+          autocomplete="username"
+        >
+      </div>
+
+      <!-- Password + toggle -->
+      <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <div class="input-group">
+          <input
+            type="password"
+            class="form-control"
+            id="password"
+            name="password"
+            placeholder="Enter your password"
+            autocomplete="current-password"
+          >
+          <button class="btn btn-outline-secondary" type="button" id="togglePwd" aria-label="Show or hide password">
+            Show
+          </button>
+        </div>
+      </div>
+
+      <!-- Role (optional; no validation here) -->
+      <div class="mb-3">
+        <label for="role" class="form-label">Role</label>
+        <select class="form-select" id="role" name="role">
+          <option value="" selected>Select a role</option>
+          <option value="user">User</option>
+          <option value="admin">Administrator</option>
+        </select>
+      </div>
+
+      <!-- Buttons -->
+      <div class="row justify-content-evenly">
+        <div class="col-6 col-md-5 d-grid">
+          <button type="submit" class="btn btn-primary">Sign In</button>
+        </div>
+        <div class="col-6 col-md-5 d-grid">
+          <button type="reset" class="btn btn-secondary">Clear</button>
+        </div>
+      </div>
+
+      <hr class="my-4">
+
+      <!-- (forgot/no account) -->
+      <p class="text-center text-muted mb-0">
+        Need help (forgot password / no account)?&nbsp;
+        <a href="#" class="link-primary link-underline-opacity-0 link-underline-opacity-100-hover">Contact administrator</a>
+      </p>
+    </form>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+          crossorigin="anonymous"></script>
+  <script>
+    (function () {
+      const form = document.getElementById('loginForm');
+      const togglePwdBtn = document.getElementById('togglePwd');
+      const pwdInput = document.getElementById('password');
+
+      // Show/Hide password only
+      togglePwdBtn.addEventListener('click', () => {
+        const isPwd = pwdInput.type === 'password';
+        pwdInput.type = isPwd ? 'text' : 'password';
+        togglePwdBtn.textContent = isPwd ? 'Hide' : 'Show';
+      });
+
+      // No validation now
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        // TODO: Send login request to server
+        // For now, simulate a successful login by redirecting or showing a message
+        alert('Simulating login submission. TODO: Implement actual login logic.');
+      });
+
+      // Clear-> reset password field type
+      form.addEventListener('reset', () => {
+        if (pwdInput.type === 'text') {
+          pwdInput.type = 'password';
+          togglePwdBtn.textContent = 'Show';
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

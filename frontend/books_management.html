@@ -1,0 +1,689 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Library System - Books Management</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+  <link rel="stylesheet" href="style.css" /> <!-- Assumes you have a style.css file -->
+  <style>
+    .brand-logo { max-height: clamp(24px, 6vw, 44px); height: auto; width: auto; object-fit: contain; display: block; }
+    .navbar-brand { min-width: 0; }
+    .brand-text { white-space: nowrap; }
+    .glass { backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); background: rgba(255,255,255,0.65); border-radius: 1rem; box-shadow: 0 8px 30px rgba(0,0,0,0.08); }
+    
+    /* Custom styles */
+    .book-card {
+      transition: transform 0.2s, box-shadow 0.2s;
+      height: 100%;
+    }
+    .book-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    }
+    .status-available { color: #198754; } /* Green */
+    .status-borrowed { color: #dc3545; } /* Red */
+    .status-reserved { color: #ffc107; } /* Yellow */
+    .action-btn {
+      min-width: 80px;
+    }
+    .modal-glass {
+      backdrop-filter: blur(16px);
+      background: rgba(255,255,255,0.85);
+    }
+    .status-icon { /* For status icons */
+        font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+  <!-- Top Navbar Layout -->
+  <nav class="navbar navbar-expand-lg bg-dark navbar-dark">
+    <div class="container-lg">
+      <a href="#" class="navbar-brand d-flex align-items-center gap-2">
+        <span class="brand-text fw-semibold">Library System</span>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav"
+              aria-controls="nav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse mt-3 mt-lg-0" id="nav">
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="home.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link active" href="#" aria-current="page">Books Management</a></li>
+          <li class="nav-item"><a class="nav-link" href="others.html">Others</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="container-fluid mt-4 px-3 px-md-5">
+    <!-- Header Section -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
+      <div>
+        <h1 class="h2 mb-2">Books Management</h1>
+        <p class="text-muted mb-0">Manage library books, track availability, and handle borrowing records</p>
+      </div>
+      <button class="btn btn-primary mt-3 mt-md-0" data-bs-toggle="modal" data-bs-target="#addBookModal">
+        <i class="bi bi-plus-circle me-2"></i>Add New Book
+      </button>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div class="glass p-4 mb-4">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="input-group">
+            <span class="input-group-text bg-transparent border-end-0">
+              <i class="bi bi-search"></i>
+            </span>
+            <input type="text" class="form-control border-start-0" id="searchInput" placeholder="Search by title, author, or ISBN...">
+          </div>
+        </div>
+        <div class="col-md-3">
+          <select class="form-select" id="categoryFilter" data-placeholder="All Categories">
+            <option value="">All Categories</option>
+            <!-- Options will be populated by JavaScript -->
+          </select>
+        </div>
+        <div class="col-md-3">
+          <select class="form-select" id="statusFilter" data-placeholder="All Status">
+            <option value="">All Status</option>
+            <option value="available">Available</option>
+            <option value="borrowed">Borrowed</option>
+            <option value="reserved">Reserved</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Books Table Section -->
+    <div class="glass p-4">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle" id="booksTable">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Title</th>
+              <th scope="col">Author</th>
+              <th scope="col">ISBN</th>
+              <th scope="col">Category</th>
+              <th scope="col">Published</th>
+              <th scope="col">Status</th>
+              <th scope="col">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="booksTableBody">
+            <!-- Books will be dynamically loaded here -->
+            <tr>
+              <td colspan="8" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2 text-muted">Loading books...</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- Pagination -->
+      <nav aria-label="Books pagination" class="mt-4">
+        <ul class="pagination justify-content-center">
+          <li class="page-item disabled">
+            <a class="page-link" href="#" tabindex="-1">Previous</a>
+          </li>
+          <li class="page-item active"><a class="page-link" href="#">1</a></li>
+          <li class="page-item"><a class="page-link" href="#">2</a></li>
+          <li class="page-item"><a class="page-link" href="#">3</a></li>
+          <li class="page-item">
+            <a class="page-link" href="#">Next</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Add Book Modal -->
+  <div class="modal fade" id="addBookModal" tabindex="-1" aria-labelledby="addBookModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content modal-glass">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addBookModalLabel">Add New Book</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="addBookForm">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label for="bookTitle" class="form-label">Title *</label>
+                <input type="text" class="form-control" id="bookTitle" required>
+              </div>
+              <div class="col-md-6">
+                <label for="bookAuthor" class="form-label">Author *</label>
+                <input type="text" class="form-control" id="bookAuthor" required>
+              </div>
+              <div class="col-md-6">
+                <label for="bookIsbn" class="form-label">ISBN *</label>
+                <input type="text" class="form-control" id="bookIsbn" required>
+              </div>
+              <div class="col-md-6">
+                <label for="bookCategory" class="form-label">Category *</label>
+                <select class="form-select" id="bookCategory" required>
+                  <option value="">Select category</option>
+                  <!-- Options will be populated by JavaScript -->
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label for="bookPublisher" class="form-label">Publisher</label>
+                <input type="text" class="form-control" id="bookPublisher">
+              </div>
+              <div class="col-md-6">
+                <label for="bookYear" class="form-label">Published Year</label>
+                <input type="number" class="form-control" id="bookYear" min="1900" max="2024">
+              </div>
+              <div class="col-md-6">
+                <label for="bookTotalCopies" class="form-label">Total Copies *</label>
+                <input type="number" class="form-control" id="bookTotalCopies" min="1" value="1" required>
+              </div>
+              <div class="col-12">
+                <label for="bookDescription" class="form-label">Description</label>
+                <textarea class="form-control" id="bookDescription" rows="3"></textarea>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="saveBookBtn">Save Book</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Book Modal -->
+  <div class="modal fade" id="editBookModal" tabindex="-1" aria-labelledby="editBookModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content modal-glass">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editBookModalLabel">Edit Book</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="editBookForm">
+            <!-- This will be populated dynamically by JavaScript -->
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="updateBookBtn">Update Book</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+          crossorigin="anonymous"></script>
+  
+  <script>
+    // --- Mock Data & Configuration ---
+    // In a real application, this data would be fetched from your backend API.
+
+    // Mock Categories from your book_type table
+    const bookCategories = [
+      { type_id: 1, type_name: "Fiction" },
+      { type_id: 2, type_name: "Non-Fiction" },
+      { type_id: 3, type_name: "Science" },
+      { type_id: 4, type_name: "Technology" },
+      { type_id: 5, type_name: "History" },
+      { type_id: 6, type_name: "Biography" }
+    ];
+
+    // Mock Books data, reflecting your database structure with added copy counts
+    // Assuming book_id is the primary key, type_id is FK to book_type,
+    // and new fields total_copies, available_copies are added to the book table.
+    let books = [
+      {
+        book_id: 1, // Corresponds to DB book_id
+        title: "The Great Gatsby",
+        author: "F. Scott Fitzgerald",
+        isbn: "9780743273565",
+        type_id: 1, // Fiction
+        publisher: "Scribner",
+        year: 1925,
+        description: "A classic novel of the Jazz Age",
+        total_copies: 5, // New field
+        available_copies: 3, // New field
+      },
+      {
+        book_id: 2,
+        title: "A Brief History of Time",
+        author: "Stephen Hawking",
+        isbn: "9780553380163",
+        type_id: 3, // Science
+        publisher: "Bantam Books",
+        year: 1988,
+        description: "Explains complex scientific concepts for general readers",
+        total_copies: 3,
+        available_copies: 0, // All borrowed
+      },
+      {
+        book_id: 3,
+        title: "Steve Jobs",
+        author: "Walter Isaacson",
+        isbn: "9781451648539",
+        type_id: 6, // Biography
+        publisher: "Simon & Schuster",
+        year: 2011,
+        description: "The exclusive biography of Apple's co-founder",
+        total_copies: 4,
+        available_copies: 2,
+      },
+      {
+        book_id: 4,
+        title: "Clean Code",
+        author: "Robert C. Martin",
+        isbn: "9780132350884",
+        type_id: 4, // Technology
+        publisher: "Prentice Hall",
+        year: 2008,
+        description: "A handbook of agile software craftsmanship",
+        total_copies: 2,
+        available_copies: 1,
+      },
+      {
+        book_id: 5,
+        title: "Sapiens: A Brief History of Humankind",
+        author: "Yuval Noah Harari",
+        isbn: "9780062316097",
+        type_id: 5, // History
+        publisher: "Harper",
+        year: 2011,
+        description: "Explores the history of human species",
+        total_copies: 6,
+        available_copies: 4,
+      }
+    ];
+
+    // --- DOM Elements ---
+    const booksTableBody = document.getElementById('booksTableBody');
+    const searchInput = document.getElementById('searchInput');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const statusFilter = document.getElementById('statusFilter');
+    const addBookForm = document.getElementById('addBookForm');
+    const saveBookBtn = document.getElementById('saveBookBtn');
+    const editBookModalElement = document.getElementById('editBookModal'); // Get modal element
+    const editBookModal = new bootstrap.Modal(editBookModalElement); // Initialize modal
+    const editBookForm = document.getElementById('editBookForm');
+    const updateBookBtn = document.getElementById('updateBookBtn');
+
+    // --- State Variables ---
+    let currentEditBookId = null; // To keep track of the book being edited
+
+    // --- Initialization ---
+    document.addEventListener('DOMContentLoaded', function() {
+      populateCategorySelects(); // Populate dropdowns with categories
+      renderBooksTable();      // Display the initial list of books
+      setupEventListeners();     // Set up event listeners for interactions
+    });
+
+    // --- Helper Functions ---
+
+    // Populate category select elements with options from bookCategories
+    function populateCategorySelects() {
+      const categorySelects = document.querySelectorAll('#categoryFilter, #bookCategory, #editCategory');
+      categorySelects.forEach(select => {
+        // Clear existing options except the placeholder
+        select.innerHTML = ''; 
+        const defaultOption = document.createElement('option');
+        defaultOption.value = "";
+        defaultOption.textContent = select.dataset.placeholder || 'Select category';
+        select.appendChild(defaultOption);
+        
+        // Add category options from the mock data
+        bookCategories.forEach(cat => {
+          const option = document.createElement('option');
+          option.value = cat.type_id; // Use type_id as value
+          option.textContent = cat.type_name;
+          select.appendChild(option);
+        });
+      });
+    }
+
+    // Get category name from type_id
+    function getCategoryName(typeId) {
+      const category = bookCategories.find(cat => cat.type_id === typeId);
+      return category ? category.type_name : 'Unknown Category';
+    }
+
+    // Get Bootstrap icon class for status
+    function getStatusIcon(status) {
+      const icons = {
+        'available': 'bi-check-circle-fill',
+        'borrowed': 'bi-x-circle-fill',
+        'reserved': 'bi-clock-fill' // Note: actual 'reserved' logic needs backend
+      };
+      return icons[status] || 'bi-question-circle-fill';
+    }
+
+    // Determine the book's current status based on available copies
+    function getBookStatus(book) {
+        // If no copies are available, it's borrowed/unavailable
+        if (book.available_copies === 0 && book.total_copies > 0) {
+            return 'borrowed'; 
+        } 
+        // If there are available copies
+        else if (book.available_copies > 0) {
+            // In a real system, 'reserved' status would be checked against borrowing records
+            // For this frontend, we'll consider it 'available' if copies > 0.
+            return 'available';
+        } 
+        // If total_copies is 0 or undefined, or some other edge case
+        else {
+            return 'available'; // Default to available or handle as appropriate
+        }
+    }
+
+    // Render the status badge and copy information for a book
+    function renderStatus(book) {
+        const currentStatus = getBookStatus(book);
+        const statusClass = `status-${currentStatus} fw-semibold`;
+        const statusIcon = getStatusIcon(currentStatus);
+        
+        let statusHtml = `
+            <span class="${statusClass}">
+              <i class="bi ${statusIcon} status-icon me-1"></i>
+              ${currentStatus.charAt(0).toUpperCase() + currentStatus.slice(1)}
+            </span>
+        `;
+        
+        // Display copy information if available
+        if (book.total_copies !== undefined) {
+             statusHtml += `<div class="small text-muted">${book.available_copies}/${book.total_copies} copies</div>`;
+        }
+       
+        return statusHtml;
+    }
+
+
+    // --- Table Rendering and Filtering ---
+
+    // Render the books table with the provided array of books
+    function renderBooksTable(booksToRender = books) {
+      if (booksToRender.length === 0) {
+        booksTableBody.innerHTML = `
+          <tr>
+            <td colspan="8" class="text-center py-5">
+              <i class="bi bi-book display-4 text-muted mb-3"></i>
+              <p class="h5 text-muted">No books found</p>
+              <p class="text-muted">Try adjusting your search or filter</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      booksTableBody.innerHTML = booksToRender.map(book => `
+        <tr>
+          <th scope="row">${book.book_id}</th>
+          <td>
+            <div class="fw-semibold">${escapeHTML(book.title)}</div>
+            <small class="text-muted">${escapeHTML(book.publisher || 'Unknown Publisher')}</small>
+          </td>
+          <td>${escapeHTML(book.author)}</td>
+          <td><code>${escapeHTML(book.isbn)}</code></td>
+          <td>
+            <span class="badge bg-light text-dark">${escapeHTML(getCategoryName(book.type_id))}</span>
+          </td>
+          <td>${book.year || 'N/A'}</td>
+          <td>
+            ${renderStatus(book)}
+          </td>
+          <td>
+            <div class="d-flex gap-2">
+              <button class="btn btn-sm btn-outline-primary action-btn" onclick="editBook(${book.book_id})">
+                <i class="bi bi-pencil me-1"></i>Edit
+              </button>
+              <button class="btn btn-sm btn-outline-danger action-btn" onclick="deleteBook(${book.book_id})">
+                <i class="bi bi-trash me-1"></i>Delete
+              </button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // Filter books based on search input and selected filters
+    function filterBooks() {
+      const searchTerm = searchInput.value.toLowerCase();
+      const categoryId = parseInt(categoryFilter.value); // Get category type_id
+      const status = statusFilter.value; // e.g., "available", "borrowed"
+
+      const filtered = books.filter(book => {
+        // Search filter
+        const matchesSearch = !searchTerm || 
+          book.title.toLowerCase().includes(searchTerm) ||
+          book.author.toLowerCase().includes(searchTerm) ||
+          book.isbn.includes(searchTerm);
+        
+        // Category filter (matches type_id)
+        const matchesCategory = !categoryId || book.type_id === categoryId;
+        
+        // Status filter (derived from available_copies)
+        const currentStatus = getBookStatus(book);
+        const matchesStatus = !status || currentStatus === status;
+        
+        return matchesSearch && matchesCategory && matchesStatus;
+      });
+
+      renderBooksTable(filtered); // Re-render table with filtered results
+    }
+
+    // --- CRUD Operations (Simulated) ---
+
+    // Add a new book
+    function addBook(bookData) {
+      // Basic frontend validation for required fields
+      if (!bookData.title || !bookData.author || !bookData.isbn || !bookData.type_id || bookData.total_copies === undefined || bookData.total_copies < 1) {
+          alert("Please fill in all required fields correctly (Title, Author, ISBN, Category, Total Copies).");
+          return;
+      }
+
+      // Simulate generating a new book_id (backend should handle this)
+      const newBookId = books.length > 0 ? Math.max(...books.map(b => b.book_id)) + 1 : 1;
+      
+      const newBook = {
+        book_id: newBookId,
+        ...bookData,
+        available_copies: bookData.total_copies, // Initially, all copies are available
+      };
+      
+      books.push(newBook); // Add to our mock data array
+      renderBooksTable();  // Update the table display
+      
+      // Close modal and reset form
+      const modal = bootstrap.Modal.getInstance(document.getElementById('addBookModal'));
+      modal.hide();
+      addBookForm.reset();
+      addBookForm.querySelector('#bookCategory').value = ""; // Reset select to placeholder
+      
+      alert('Book added successfully!'); // User feedback
+    }
+
+    // Edit book: Populate the edit modal with book data
+    function editBook(bookId) {
+      const book = books.find(b => b.book_id === bookId);
+      if (!book) return;
+      
+      currentEditBookId = bookId; // Store the ID of the book being edited
+      
+      // Dynamically populate the edit form within the modal
+      editBookForm.innerHTML = `
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label for="editTitle" class="form-label">Title *</label>
+            <input type="text" class="form-control" id="editTitle" value="${escapeHTML(book.title)}" required>
+          </div>
+          <div class="col-md-6">
+            <label for="editAuthor" class="form-label">Author *</label>
+            <input type="text" class="form-control" id="editAuthor" value="${escapeHTML(book.author)}" required>
+          </div>
+          <div class="col-md-6">
+            <label for="editIsbn" class="form-label">ISBN *</label>
+            <input type="text" class="form-control" id="editIsbn" value="${escapeHTML(book.isbn)}" required>
+          </div>
+          <div class="col-md-6">
+            <label for="editCategory" class="form-label">Category *</label>
+            <select class="form-select" id="editCategory" required>
+              <option value="">Select category</option>
+              ${bookCategories.map(cat => `
+                <option value="${cat.type_id}" ${book.type_id === cat.type_id ? 'selected' : ''}>
+                  ${escapeHTML(cat.type_name)}
+                </option>
+              `).join('')}
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label for="editPublisher" class="form-label">Publisher</label>
+            <input type="text" class="form-control" id="editPublisher" value="${escapeHTML(book.publisher || '')}">
+          </div>
+          <div class="col-md-6">
+            <label for="editYear" class="form-label">Published Year</label>
+            <input type="number" class="form-control" id="editYear" value="${book.year || ''}" min="1900" max="2024">
+          </div>
+          <div class="col-md-6">
+            <label for="editTotalCopies" class="form-label">Total Copies *</label>
+            <input type="number" class="form-control" id="editTotalCopies" value="${book.total_copies}" min="1" required>
+          </div>
+          <div class="col-12">
+            <label for="editDescription" class="form-label">Description</label>
+            <textarea class="form-control" id="editDescription" rows="3">${escapeHTML(book.description || '')}</textarea>
+          </div>
+        </div>
+      `;
+      
+      editBookModal.show(); // Show the modal
+    }
+
+    // Update an existing book
+    function updateBook() {
+      // Find the index of the book being edited
+      const bookIndex = books.findIndex(b => b.book_id === currentEditBookId);
+      if (bookIndex === -1) {
+          console.error("Error: Book to update not found.");
+          editBookModal.hide();
+          return;
+      }
+      
+      // Get updated values from the edit form
+      const updatedTitle = document.getElementById('editTitle').value.trim();
+      const updatedAuthor = document.getElementById('editAuthor').value.trim();
+      const updatedIsbn = document.getElementById('editIsbn').value.trim();
+      const updatedCategoryId = parseInt(document.getElementById('editCategory').value);
+      const updatedPublisher = document.getElementById('editPublisher').value.trim();
+      const updatedYear = parseInt(document.getElementById('editYear').value) || null;
+      const updatedTotalCopies = parseInt(document.getElementById('editTotalCopies').value);
+      const updatedDescription = document.getElementById('editDescription').value.trim();
+
+      // Basic frontend validation
+      if (!updatedTitle || !updatedAuthor || !updatedIsbn || !updatedCategoryId || updatedTotalCopies === undefined || updatedTotalCopies < 1) {
+          alert("Please fill in all required fields correctly (Title, Author, ISBN, Category, Total Copies).");
+          return;
+      }
+
+      const originalBook = books[bookIndex];
+      const originalTotalCopies = originalBook.total_copies;
+      
+      const updatedBook = {
+        ...originalBook, // Preserve existing properties like book_id
+        title: updatedTitle,
+        author: updatedAuthor,
+        isbn: updatedIsbn,
+        type_id: updatedCategoryId,
+        publisher: updatedPublisher,
+        year: updatedYear,
+        total_copies: updatedTotalCopies,
+        description: updatedDescription,
+      };
+      
+      // Logic to adjust available_copies when total_copies changes
+      if (updatedTotalCopies !== originalTotalCopies) {
+          if (updatedTotalCopies > originalTotalCopies) {
+              updatedBook.available_copies = originalBook.available_copies + (updatedTotalCopies - originalTotalCopies);
+          } else { // updatedTotalCopies < originalTotalCopies
+              updatedBook.available_copies = Math.min(originalBook.available_copies, updatedTotalCopies);
+          }
+          if (updatedBook.available_copies < 0) updatedBook.available_copies = 0;
+      }
+
+      books[bookIndex] = updatedBook; // Update the book in our mock data array
+      renderBooksTable(); // Re-render the table to show changes
+      editBookModal.hide(); // Hide the edit modal
+      
+      alert('Book updated successfully!'); // User feedback
+    }
+
+    // Delete a book
+    function deleteBook(bookId) {
+      // Confirm before deleting
+      if (confirm('Are you sure you want to delete this book? This action cannot be undone.')) {
+        // Filter out the book to be deleted from the array
+        books = books.filter(book => book.book_id !== bookId);
+        renderBooksTable(); // Re-render the table
+        alert('Book deleted successfully!'); // User feedback
+      }
+    }
+
+    // --- Event Listeners Setup ---
+    function setupEventListeners() {
+      // Live filtering as user types or changes selections
+      searchInput.addEventListener('input', filterBooks);
+      categoryFilter.addEventListener('change', filterBooks);
+      statusFilter.addEventListener('change', filterBooks);
+      
+      // Event listener for the "Save Book" button in the add modal
+      saveBookBtn.addEventListener('click', function() {
+        if (!addBookForm.checkValidity()) {
+          addBookForm.reportValidity();
+          return;
+        }
+        
+        const bookData = {
+          title: document.getElementById('bookTitle').value.trim(),
+          author: document.getElementById('bookAuthor').value.trim(),
+          isbn: document.getElementById('bookIsbn').value.trim(),
+          type_id: parseInt(document.getElementById('bookCategory').value), // Ensure it's a number
+          publisher: document.getElementById('bookPublisher').value.trim(),
+          year: parseInt(document.getElementById('bookYear').value) || null,
+          total_copies: parseInt(document.getElementById('bookTotalCopies').value),
+          description: document.getElementById('bookDescription').value.trim()
+        };
+        
+        addBook(bookData);
+      });
+      
+      // Event listener for the "Update Book" button in the edit modal
+      updateBookBtn.addEventListener('click', updateBook);
+    }
+
+    // --- Utility for HTML escaping (prevents XSS) ---
+    function escapeHTML(str) {
+        if (typeof str !== 'string') return str; // Return non-strings as is
+        const div = document.createElement('div');
+        div.appendChild(document.createTextNode(str));
+        return div.innerHTML;
+    }
+
+    // --- Expose functions to be called by inline HTML onclick attributes ---
+    window.editBook = editBook;
+    window.deleteBook = deleteBook;
+
+  </script>
+</body>
+</html>

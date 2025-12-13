@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Library System - User Settings</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+  <link rel="stylesheet" href="style.css" /> <!-- Assumes you have a style.css file -->
+  <style>
+    .brand-logo { max-height: clamp(24px, 6vw, 44px); height: auto; width: auto; object-fit: contain; display: block; }
+    .navbar-brand { min-width: 0; }
+    .brand-text { white-space: nowrap; }
+    .glass { backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); background: rgba(255,255,255,0.65); border-radius: 1rem; box-shadow: 0 8px 30px rgba(0,0,0,0.08); }
+    .input-group .btn { min-width: 50px; } /* Adjust button width for password toggle */
+  </style>
+</head>
+<body>
+  <!-- Top Navbar Layout-->
+  <nav class="navbar navbar-expand-lg bg-dark navbar-dark">
+    <div class="container-lg">
+      <a href="#" class="navbar-brand d-flex align-items-center gap-2">
+        <span class="brand-text fw-semibold">Library System</span>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav"
+              aria-controls="nav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse mt-3 mt-lg-0" id="nav">
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="home.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="books_management.html">Books Management</a></li> <!-- Assuming your books management page is named this -->
+          <li class="nav-item"><a class="nav-link active" href="#" aria-current="page">Others</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="container-fluid mt-4 px-3 px-md-5">
+    <!-- Header Section -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
+      <div>
+        <h1 class="h2 mb-2">User Settings</h1>
+        <p class="text-muted mb-0">Manage your account details and security preferences.</p>
+      </div>
+    </div>
+
+    <!-- Settings Card -->
+    <div class="glass mx-auto p-4 p-md-5" style="width: 70%; max-width: 980px;">
+      
+      <!-- Form -->
+      <form class="mx-auto px-3 mt-4" style="max-width: 520px;" id="settingsForm">
+        <!-- Username-- Return by DB -->
+        <div class="mb-3">
+          <label class="form-label">Username</label>
+          <input type="text" class="form-control" id="displayName" value="Loading..." readonly>
+          <!-- NOTE: 'Loading...' is a placeholder. It will be replaced by the real username. -->
+        </div>
+
+        <!-- User Role (Optional, based on your DB's 'is_admin' or similar) -->
+        <div class="mb-3">
+            <label class="form-label">Role</label>
+            <input type="text" class="form-control" id="userRole" value="Loading..." readonly>
+            <!-- e.g., User, Administrator -->
+        </div>
+
+        <hr class="my-4"> <!-- Separator -->
+
+        <h5 class="mb-3">Change Password</h5>
+        
+        <!-- Old Password + toggle -->
+        <div class="mb-3">
+          <label for="oldPassword" class="form-label">Old Password</label>
+          <div class="input-group">
+            <input
+              type="password"
+              class="form-control"
+              id="oldPassword"
+              name="oldPassword"
+              placeholder="Enter your old password"
+              autocomplete="current-password"
+              required
+            >
+            <button class="btn btn-outline-secondary" type="button" id="toggleOldPwd" aria-label="Show or hide old password">
+              Show
+            </button>
+          </div>
+        </div>
+
+        <!-- New Password + toggle -->
+        <div class="mb-3">
+          <label for="newPassword" class="form-label">New Password</label>
+          <div class="input-group">
+            <input
+              type="password"
+              class="form-control"
+              id="newPassword"
+              name="newPassword"
+              placeholder="Enter new password"
+              autocomplete="off"
+              required
+            >
+            <button class="btn btn-outline-secondary" type="button" id="toggleNewPwd" aria-label="Show or hide new password">
+              Show
+            </button>
+          </div>
+        </div>
+        
+        <!-- Confirm New Password + toggle -->
+        <div class="mb-3">
+            <label for="confirmNewPassword" class="form-label">Confirm New Password</label>
+            <div class="input-group">
+              <input
+                type="password"
+                class="form-control"
+                id="confirmNewPassword"
+                name="confirmNewPassword"
+                placeholder="Confirm your new password"
+                autocomplete="off"
+                required
+              >
+              <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPwd" aria-label="Show or hide confirm new password">
+                Show
+              </button>
+            </div>
+          </div>
+
+        <!-- Save Button -->
+        <div class="d-grid mt-4">
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+
+        <hr class="my-4">
+
+        <!-- Logout Button -->
+        <div class="d-grid">
+            <button type="button" class="btn btn-outline-danger" id="logoutBtn">Logout</button>
+        </div>
+
+        <p class="text-center text-muted mt-4 mb-0">
+          Need help?&nbsp;<a href="#" class="link-primary link-underline-opacity-0 link-underline-opacity-100-hover">Contact administrator</a>
+        </p>
+      </form>
+    </div>
+  </div>
+
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+          crossorigin="anonymous"></script>
+  
+  <script>
+    // --- Mock User Data ---
+    // In a real application, this would come from the currently logged-in user's session or API response.
+    // This simulates data obtained after a successful login.
+    const currentUser = {
+        user_id: 1,
+        user_name: "alice", // Corresponds to DB user_name
+        is_admin: 0,       // Corresponds to DB is_admin (0 for User, 1 for Administrator)
+        // password_hash is not exposed to frontend
+    };
+
+    // --- DOM Elements ---
+    const settingsForm = document.getElementById('settingsForm');
+    const displayNameEl = document.getElementById('displayName');
+    const userRoleEl = document.getElementById('userRole');
+    const oldPasswordInput = document.getElementById('oldPassword');
+    const newPasswordInput = document.getElementById('newPassword');
+    const confirmNewPasswordInput = document.getElementById('confirmNewPassword');
+    const toggleOldPwdBtn = document.getElementById('toggleOldPwd');
+    const toggleNewPwdBtn = document.getElementById('toggleNewPwd');
+    const toggleConfirmPwdBtn = document.getElementById('toggleConfirmPwd');
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    // --- Initialization ---
+    document.addEventListener('DOMContentLoaded', function() {
+      displayUserInfo(currentUser); // Populate user info
+      setupEventListeners();         // Set up event listeners
+    });
+
+    // --- Functions ---
+
+    // Display user information (username and role)
+    function displayUserInfo(user) {
+      if (!user) { // Handle case where user data is not available
+        displayNameEl.value = "Not logged in";
+        userRoleEl.value = "N/A";
+        return;
+      }
+      displayNameEl.value = user.user_name;
+      userRoleEl.value = user.is_admin ? "Administrator" : "User"; // Map is_admin value to display text
+    }
+
+    // Generic function to toggle password visibility for any input and button pair
+    function togglePasswordVisibility(passwordInput, button) {
+      const isPwd = passwordInput.type === 'password';
+      passwordInput.type = isPwd ? 'text' : 'password';
+      button.textContent = isPwd ? 'Hide' : 'Show';
+    }
+
+    // Handle form submission for changing password
+    function handleChangePassword(event) {
+      event.preventDefault(); // Prevent default form submission
+
+      const oldPassword = oldPasswordInput.value;
+      const newPassword = newPasswordInput.value;
+      const confirmNewPassword = confirmNewPasswordInput.value;
+
+      // Frontend validation checks
+      if (newPassword !== confirmNewPassword) {
+        alert("New password and confirm new password do not match.");
+        return;
+      }
+      if (newPassword.length < 6) { // Example: Minimum password length requirement
+        alert("New password must be at least 6 characters long.");
+        return;
+      }
+
+      // --- Backend Integration Placeholder ---
+      // In a real application, you would send the collected data to your backend API.
+      // The backend would verify the old password against the stored hash,
+      // and if correct, hash the new password and update the user record.
+      // Example API call structure:
+      /*
+      fetch('/api/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            userId: currentUser.user_id, // Pass user ID if needed by backend
+            oldPassword: oldPassword, 
+            newPassword: newPassword 
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert('Password changed successfully!');
+          settingsForm.reset(); // Reset form on success
+          // Reset password toggles to default state
+          toggleOldPwdBtn.textContent = 'Show'; oldPasswordInput.type = 'password';
+          toggleNewPwdBtn.textContent = 'Show'; newPasswordInput.type = 'password';
+          toggleConfirmPwdBtn.textContent = 'Show'; confirmNewPasswordInput.type = 'password';
+        } else {
+          alert('Password change failed: ' + data.message); // Display error message from backend
+        }
+      })
+      .catch(error => {
+        console.error('Error changing password:', error);
+        alert('An error occurred while changing password. Please try again later.');
+      });
+      */
+      
+      // --- Simulation for Frontend Demo ---
+      // This part simulates the result of a successful or failed backend operation.
+      alert(`Simulating password change submission for user "${currentUser.user_name}".\n` +
+            `Old Password: ${oldPassword}\n` +
+            `New Password: ${newPassword}\n` +
+            `(This is a simulation. No actual password change occurred.)`);
+      
+      // Reset form and toggles as if the operation was successful
+      settingsForm.reset(); 
+      toggleOldPwdBtn.textContent = 'Show'; oldPasswordInput.type = 'password';
+      toggleNewPwdBtn.textContent = 'Show'; newPasswordInput.type = 'password';
+      toggleConfirmPwdBtn.textContent = 'Show'; confirmNewPasswordInput.type = 'password';
+    }
+
+    // Handle user logout
+    function handleLogout() {
+      if (confirm("Are you sure you want to log out?")) {
+        // --- Backend Integration Placeholder for Logout ---
+        // In a real application, you would invalidate the user's session or token on the backend.
+        // Example:
+        // fetch('/api/logout', { method: 'POST' })
+        // .then(() => {
+        //   // After successful logout on backend, redirect to login page
+        //   window.location.href = 'login.html'; 
+        // })
+        // .catch(error => {
+        //   console.error('Logout error:', error);
+        //   alert('Error during logout. Please try again.');
+        // });
+
+        // --- Simulation for Frontend Demo ---
+        alert("Logging out...");
+        window.location.href = 'login.html'; // Redirect to login page for simulation
+      }
+    }
+
+    // Setup all event listeners for interactivity
+    function setupEventListeners() {
+      // Event listeners for password visibility toggles
+      toggleOldPwdBtn.addEventListener('click', () => togglePasswordVisibility(oldPasswordInput, toggleOldPwdBtn));
+      toggleNewPwdBtn.addEventListener('click', () => togglePasswordVisibility(newPasswordInput, toggleNewPwdBtn));
+      toggleConfirmPwdBtn.addEventListener('click', () => togglePasswordVisibility(confirmNewPasswordInput, toggleConfirmPwdBtn));
+
+      // Event listener for the form submission (password change)
+      settingsForm.addEventListener('submit', handleChangePassword);
+
+      // Event listener for the logout button
+      logoutBtn.addEventListener('click', handleLogout);
+    }
+  </script>
+</body>
+</html>
