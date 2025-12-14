@@ -110,6 +110,7 @@
             <tr>
               <th scope="col">#</th>
               <th scope="col">Title</th>
+              <th scope="col">Sample Page</th>
               <th scope="col">Author</th>
               <th scope="col">Category</th>
               <th scope="col">Status</th>
@@ -119,7 +120,7 @@
           <tbody id="booksTableBody">
             <!-- Books will be dynamically loaded here -->
             <tr>
-              <td colspan="6" class="text-center py-5">
+              <td colspan="7" class="text-center py-5">
                 <div class="spinner-border text-primary" role="status">
                   <span class="visually-hidden">Loading...</span>
                 </div>
@@ -176,6 +177,16 @@
               <div class="col-md-6">
                 <label for="bookPrice" class="form-label">Price *</label>
                 <input type="number" class="form-control" id="bookPrice" step="0.01" min="0" required>
+              </div>
+              <div class="col-md-6 d-flex flex-column">
+                <label class="form-label">Sample Page</label>
+                <div class="d-flex align-items-center">
+                  <input type="file" id="bookSampleFile" accept=".pdf,.png,.jpg,.jpeg" hidden>
+                  <label for="bookSampleFile" class="btn btn-outline-secondary" id="bookSampleLabel">
+                    <i class="bi bi-upload me-1"></i>Upload Sample Page
+                  </label>
+                  <span class="ms-2 small text-muted" id="bookSampleFilename">No file chosen</span>
+                </div>
               </div>
               <div class="col-12">
                 <label for="bookDescription" class="form-label">Description</label>
@@ -245,6 +256,8 @@
     const statusFilter = document.getElementById('statusFilter');
     const addBookForm = document.getElementById('addBookForm');
     const saveBookBtn = document.getElementById('saveBookBtn');
+    const bookSampleFile = document.getElementById('bookSampleFile');
+    const bookSampleFilename = document.getElementById('bookSampleFilename');
     const editBookModalElement = document.getElementById('editBookModal'); // Get modal element
     const editBookModal = new bootstrap.Modal(editBookModalElement); // Initialize modal
     const editBookForm = document.getElementById('editBookForm');
@@ -419,7 +432,7 @@
       if (booksToRender.length === 0) {
         booksTableBody.innerHTML = `
           <tr>
-            <td colspan="6" class="text-center py-5">
+            <td colspan="7" class="text-center py-5">
               <i class="bi bi-book display-4 text-muted mb-3"></i>
               <p class="h5 text-muted">No books found</p>
               <p class="text-muted">Try adjusting your search or filter</p>
@@ -448,6 +461,9 @@
           <td>
             <div class="fw-semibold">${escapeHTML(book.title || '')}</div>
             ${priceDisplay}
+          </td>
+          <td>
+            ${book.sample_url ? `<a href="${escapeHTML(book.sample_url)}" target="_blank" class="btn btn-sm btn-outline-secondary">View Sample Page</a>` : '<span class="text-muted">—</span>'}
           </td>
           <td>${escapeHTML(book.author || '')}</td>
           <td>
@@ -604,7 +620,14 @@
       searchInput.addEventListener('input', filterBooks);
       categoryFilter.addEventListener('change', filterBooks);
       statusFilter.addEventListener('change', filterBooks);
-      
+      // File input change listener to show selected filename
+      if (bookSampleFile && bookSampleFilename) {
+        bookSampleFile.addEventListener('change', function() {
+          const f = bookSampleFile.files[0];
+          bookSampleFilename.textContent = f ? f.name : 'No file chosen';
+        });
+      }
+
       // Event listener for the "Save Book" button in the add modal
       saveBookBtn.addEventListener('click', async function() {
         if (!addBookForm.checkValidity()) {
@@ -652,6 +675,13 @@
           modal.hide();
           addBookForm.reset();
           addBookForm.querySelector('#bookCategory').value = "";
+          // Clear file input and filename display
+          if (bookSampleFile) {
+            bookSampleFile.value = "";
+          }
+          if (bookSampleFilename) {
+            bookSampleFilename.textContent = 'No file chosen';
+          }
           showAlert("Book added successfully!", "success");
           await loadBooksFromAPI();
         } catch (error) {
