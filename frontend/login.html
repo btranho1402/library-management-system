@@ -41,6 +41,9 @@
     <h2 class="text-center mt-1">Welcome to the Library System</h2>
     <p class="text-center text-muted mb-4">Please sign in to continue</p>
 
+    <!-- Alert Area for Error Messages -->
+    <div id="alertArea" class="mx-auto px-3" style="max-width: 520px;"></div>
+
     <!-- Login form (front-end only; no validation, no submit yet) -->
     <form class="mx-auto px-3 mt-4" style="max-width: 520px;" id="loginForm">
       <!-- Account -->
@@ -107,6 +110,7 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
           integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
           crossorigin="anonymous"></script>
+  <script src="./api.js"></script>
   <script>
     (function () {
       const form = document.getElementById('loginForm');
@@ -120,13 +124,60 @@
         togglePwdBtn.textContent = isPwd ? 'Hide' : 'Show';
       });
 
-      // No validation now
-      form.addEventListener('submit', (e) => {
+      // Handle form submission
+      form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        // TODO: Send login request to server
-        // For now, simulate a successful login by redirecting or showing a message
-        alert('Simulating login submission. TODO: Implement actual login logic.');
+        
+        const username = document.getElementById('account').value.trim();
+        const password = document.getElementById('password').value;
+        
+        if (!username || !password) {
+          showAlert('Please enter both username and password', 'warning');
+          return;
+        }
+        
+        try {
+          const response = await apiPost('/login', {
+            username: username,
+            password: password
+          });
+          
+          if (response.success && response.user) {
+            // Store user to localStorage with only required fields from backend response
+            const currentUser = {
+              user_id: response.user.user_id,
+              user_name: response.user.user_name,
+              is_admin: response.user.is_admin
+            };
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            // Redirect to home page
+            window.location.href = 'home.html';
+          } else {
+            showAlert('Login failed. Please check your credentials.', 'danger');
+          }
+        } catch (error) {
+          showAlert(`Login error: ${error.message.replace(/^HTTP \d+: /, '')}`, 'danger');
+        }
       });
+      
+      // Show alert message
+      function showAlert(message, type = 'danger') {
+        const alertArea = document.getElementById('alertArea');
+        alertArea.innerHTML = `
+          <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+            ${escapeHTML(message)}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        `;
+      }
+      
+      // Utility for HTML escaping
+      function escapeHTML(str) {
+        if (typeof str !== 'string') return str;
+        const div = document.createElement('div');
+        div.appendChild(document.createTextNode(str));
+        return div.innerHTML;
+      }
 
       // Clear-> reset password field type
       form.addEventListener('reset', () => {

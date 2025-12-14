@@ -66,7 +66,7 @@
         <h1 class="h2 mb-2">Books Management</h1>
         <p class="text-muted mb-0">Manage library books, track availability, and handle borrowing records</p>
       </div>
-      <button class="btn btn-primary mt-3 mt-md-0" data-bs-toggle="modal" data-bs-target="#addBookModal">
+      <button id="addBookBtn" class="btn btn-primary mt-3 mt-md-0" data-bs-toggle="modal" data-bs-target="#addBookModal">
         <i class="bi bi-plus-circle me-2"></i>Add New Book
       </button>
     </div>
@@ -79,7 +79,7 @@
             <span class="input-group-text bg-transparent border-end-0">
               <i class="bi bi-search"></i>
             </span>
-            <input type="text" class="form-control border-start-0" id="searchInput" placeholder="Search by title, author, or ISBN...">
+            <input type="text" class="form-control border-start-0" id="searchInput" placeholder="Search by title or author...">
           </div>
         </div>
         <div class="col-md-3">
@@ -99,6 +99,9 @@
       </div>
     </div>
 
+    <!-- Alert Area for API Messages -->
+    <div id="alertArea" class="mb-4"></div>
+
     <!-- Books Table Section -->
     <div class="glass p-4">
       <div class="table-responsive">
@@ -108,9 +111,7 @@
               <th scope="col">#</th>
               <th scope="col">Title</th>
               <th scope="col">Author</th>
-              <th scope="col">ISBN</th>
               <th scope="col">Category</th>
-              <th scope="col">Published</th>
               <th scope="col">Status</th>
               <th scope="col">Actions</th>
             </tr>
@@ -118,7 +119,7 @@
           <tbody id="booksTableBody">
             <!-- Books will be dynamically loaded here -->
             <tr>
-              <td colspan="8" class="text-center py-5">
+              <td colspan="6" class="text-center py-5">
                 <div class="spinner-border text-primary" role="status">
                   <span class="visually-hidden">Loading...</span>
                 </div>
@@ -166,10 +167,6 @@
                 <input type="text" class="form-control" id="bookAuthor" required>
               </div>
               <div class="col-md-6">
-                <label for="bookIsbn" class="form-label">ISBN *</label>
-                <input type="text" class="form-control" id="bookIsbn" required>
-              </div>
-              <div class="col-md-6">
                 <label for="bookCategory" class="form-label">Category *</label>
                 <select class="form-select" id="bookCategory" required>
                   <option value="">Select category</option>
@@ -177,16 +174,8 @@
                 </select>
               </div>
               <div class="col-md-6">
-                <label for="bookPublisher" class="form-label">Publisher</label>
-                <input type="text" class="form-control" id="bookPublisher">
-              </div>
-              <div class="col-md-6">
-                <label for="bookYear" class="form-label">Published Year</label>
-                <input type="number" class="form-control" id="bookYear" min="1900" max="2024">
-              </div>
-              <div class="col-md-6">
-                <label for="bookTotalCopies" class="form-label">Total Copies *</label>
-                <input type="number" class="form-control" id="bookTotalCopies" min="1" value="1" required>
+                <label for="bookPrice" class="form-label">Price *</label>
+                <input type="number" class="form-control" id="bookPrice" step="0.01" min="0" required>
               </div>
               <div class="col-12">
                 <label for="bookDescription" class="form-label">Description</label>
@@ -231,6 +220,7 @@
           integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
           crossorigin="anonymous"></script>
   
+  <script src="./api.js"></script>
   <script>
     // --- Mock Data & Configuration ---
     // In a real application, this data would be fetched from your backend API.
@@ -245,71 +235,8 @@
       { type_id: 6, type_name: "Biography" }
     ];
 
-    // Mock Books data, reflecting your database structure with added copy counts
-    // Assuming book_id is the primary key, type_id is FK to book_type,
-    // and new fields total_copies, available_copies are added to the book table.
-    let books = [
-      {
-        book_id: 1, // Corresponds to DB book_id
-        title: "The Great Gatsby",
-        author: "F. Scott Fitzgerald",
-        isbn: "9780743273565",
-        type_id: 1, // Fiction
-        publisher: "Scribner",
-        year: 1925,
-        description: "A classic novel of the Jazz Age",
-        total_copies: 5, // New field
-        available_copies: 3, // New field
-      },
-      {
-        book_id: 2,
-        title: "A Brief History of Time",
-        author: "Stephen Hawking",
-        isbn: "9780553380163",
-        type_id: 3, // Science
-        publisher: "Bantam Books",
-        year: 1988,
-        description: "Explains complex scientific concepts for general readers",
-        total_copies: 3,
-        available_copies: 0, // All borrowed
-      },
-      {
-        book_id: 3,
-        title: "Steve Jobs",
-        author: "Walter Isaacson",
-        isbn: "9781451648539",
-        type_id: 6, // Biography
-        publisher: "Simon & Schuster",
-        year: 2011,
-        description: "The exclusive biography of Apple's co-founder",
-        total_copies: 4,
-        available_copies: 2,
-      },
-      {
-        book_id: 4,
-        title: "Clean Code",
-        author: "Robert C. Martin",
-        isbn: "9780132350884",
-        type_id: 4, // Technology
-        publisher: "Prentice Hall",
-        year: 2008,
-        description: "A handbook of agile software craftsmanship",
-        total_copies: 2,
-        available_copies: 1,
-      },
-      {
-        book_id: 5,
-        title: "Sapiens: A Brief History of Humankind",
-        author: "Yuval Noah Harari",
-        isbn: "9780062316097",
-        type_id: 5, // History
-        publisher: "Harper",
-        year: 2011,
-        description: "Explores the history of human species",
-        total_copies: 6,
-        available_copies: 4,
-      }
-    ];
+    // Mock Books data - this is now replaced by API data
+    let books = [];
 
     // --- DOM Elements ---
     const booksTableBody = document.getElementById('booksTableBody');
@@ -327,11 +254,116 @@
     let currentEditBookId = null; // To keep track of the book being edited
 
     // --- Initialization ---
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', async function() {
+      // Check if user is logged in and admin status
+      const currentUserStr = localStorage.getItem("currentUser");
+      if (!currentUserStr) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      const currentUser = JSON.parse(currentUserStr);
+      const addBookBtn = document.getElementById("addBookBtn");
+      
+      // Hide "Add New Book" button for non-admin users
+      if (Number(currentUser.is_admin) !== 1) {
+        if (addBookBtn) {
+          addBookBtn.style.display = 'none';
+        }
+      }
+
       populateCategorySelects(); // Populate dropdowns with categories
-      renderBooksTable();      // Display the initial list of books
+      await loadBooksFromAPI();  // Load books from API
       setupEventListeners();     // Set up event listeners for interactions
     });
+
+    // --- API Integration ---
+    async function loadBooksFromAPI() {
+      try {
+        const response = await apiGet("/books");
+        if (response.success && response.data) {
+          books = response.data;
+          renderBooksTable();
+        } else {
+          showAlert("Failed to load books", "danger");
+          renderBooksTable([]);
+        }
+      } catch (error) {
+        showAlert(`Error loading books: ${error.message}`, "danger");
+        renderBooksTable([]);
+      }
+    }
+
+    // Show alert message
+    function showAlert(message, type = "danger") {
+      const alertArea = document.getElementById('alertArea');
+      alertArea.innerHTML = `
+        <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+          ${escapeHTML(message)}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      `;
+    }
+
+    // Handle borrow action
+    async function handleBorrow(bookId) {
+      const currentUserStr = localStorage.getItem("currentUser");
+      if (!currentUserStr) {
+        showAlert("Please login first", "warning");
+        setTimeout(() => {
+          window.location.href = "login.html";
+        }, 1500);
+        return;
+      }
+
+      try {
+        const currentUser = JSON.parse(currentUserStr);
+        await apiPost("/borrow", {
+          user_id: currentUser.user_id,
+          book_id: bookId
+        });
+        showAlert("Book borrowed successfully!", "success");
+        await loadBooksFromAPI();
+      } catch (error) {
+        const statusMatch = error.message.match(/HTTP (\d+)/);
+        const status = statusMatch ? parseInt(statusMatch[1]) : 0;
+        if (status === 409 || status === 404) {
+          showAlert(error.message.replace(/^HTTP \d+: /, ""), "danger");
+        } else {
+          showAlert(`Error borrowing book: ${error.message}`, "danger");
+        }
+      }
+    }
+
+    // Handle return action
+    async function handleReturn(bookId) {
+      const currentUserStr = localStorage.getItem("currentUser");
+      if (!currentUserStr) {
+        showAlert("Please login first", "warning");
+        setTimeout(() => {
+          window.location.href = "login.html";
+        }, 1500);
+        return;
+      }
+
+      try {
+        const currentUser = JSON.parse(currentUserStr);
+        await apiPost("/return", {
+          user_id: currentUser.user_id,
+          book_id: bookId
+        });
+        showAlert("Book returned successfully!", "success");
+        await loadBooksFromAPI();
+      } catch (error) {
+        const statusMatch = error.message.match(/HTTP (\d+)/);
+        const status = statusMatch ? parseInt(statusMatch[1]) : 0;
+        if (status === 409 || status === 404) {
+          showAlert(error.message.replace(/^HTTP \d+: /, ""), "danger");
+        } else {
+          showAlert(`Error returning book: ${error.message}`, "danger");
+        }
+      }
+    }
 
     // --- Helper Functions ---
 
@@ -358,8 +390,9 @@
 
     // Get category name from type_id
     function getCategoryName(typeId) {
+      if (!typeId) return 'N/A';
       const category = bookCategories.find(cat => cat.type_id === typeId);
-      return category ? category.type_name : 'Unknown Category';
+      return category ? category.type_name : typeId; // Return type_id if name not found
     }
 
     // Get Bootstrap icon class for status
@@ -372,43 +405,10 @@
       return icons[status] || 'bi-question-circle-fill';
     }
 
-    // Determine the book's current status based on available copies
+    // Determine the book's current status based on availability_status
     function getBookStatus(book) {
-        // If no copies are available, it's borrowed/unavailable
-        if (book.available_copies === 0 && book.total_copies > 0) {
-            return 'borrowed'; 
-        } 
-        // If there are available copies
-        else if (book.available_copies > 0) {
-            // In a real system, 'reserved' status would be checked against borrowing records
-            // For this frontend, we'll consider it 'available' if copies > 0.
-            return 'available';
-        } 
-        // If total_copies is 0 or undefined, or some other edge case
-        else {
-            return 'available'; // Default to available or handle as appropriate
-        }
-    }
-
-    // Render the status badge and copy information for a book
-    function renderStatus(book) {
-        const currentStatus = getBookStatus(book);
-        const statusClass = `status-${currentStatus} fw-semibold`;
-        const statusIcon = getStatusIcon(currentStatus);
-        
-        let statusHtml = `
-            <span class="${statusClass}">
-              <i class="bi ${statusIcon} status-icon me-1"></i>
-              ${currentStatus.charAt(0).toUpperCase() + currentStatus.slice(1)}
-            </span>
-        `;
-        
-        // Display copy information if available
-        if (book.total_copies !== undefined) {
-             statusHtml += `<div class="small text-muted">${book.available_copies}/${book.total_copies} copies</div>`;
-        }
-       
-        return statusHtml;
+        // availability_status: 1 = available, 0 = borrowed
+        return book.availability_status === 1 ? 'available' : 'borrowed';
     }
 
 
@@ -419,7 +419,7 @@
       if (booksToRender.length === 0) {
         booksTableBody.innerHTML = `
           <tr>
-            <td colspan="8" class="text-center py-5">
+            <td colspan="6" class="text-center py-5">
               <i class="bi bi-book display-4 text-muted mb-3"></i>
               <p class="h5 text-muted">No books found</p>
               <p class="text-muted">Try adjusting your search or filter</p>
@@ -429,34 +429,51 @@
         return;
       }
 
-      booksTableBody.innerHTML = booksToRender.map(book => `
+      booksTableBody.innerHTML = booksToRender.map(book => {
+        // Determine status based on availability_status (1 = available, 0 = borrowed)
+        const isAvailable = book.availability_status === 1;
+        const statusText = isAvailable ? 'Available' : 'Borrowed';
+        const statusClass = isAvailable ? 'status-available' : 'status-borrowed';
+        const statusIcon = isAvailable ? 'bi-check-circle-fill' : 'bi-x-circle-fill';
+        
+        // Get category/type name if available - prioritize name fields, then convert type_id to name
+        const categoryName = book.category || book.type || book.type_name || getCategoryName(book.type_id);
+        
+        // Get price if available (show in title area or as additional info)
+        const priceDisplay = book.price !== undefined ? `<small class="text-muted d-block">Price: $${parseFloat(book.price).toFixed(2)}</small>` : '';
+        
+        return `
         <tr>
-          <th scope="row">${book.book_id}</th>
+          <th scope="row">${book.book_id || book.id || ''}</th>
           <td>
-            <div class="fw-semibold">${escapeHTML(book.title)}</div>
-            <small class="text-muted">${escapeHTML(book.publisher || 'Unknown Publisher')}</small>
+            <div class="fw-semibold">${escapeHTML(book.title || '')}</div>
+            ${priceDisplay}
           </td>
-          <td>${escapeHTML(book.author)}</td>
-          <td><code>${escapeHTML(book.isbn)}</code></td>
+          <td>${escapeHTML(book.author || '')}</td>
           <td>
-            <span class="badge bg-light text-dark">${escapeHTML(getCategoryName(book.type_id))}</span>
+            <span class="badge bg-light text-dark">${escapeHTML(categoryName)}</span>
           </td>
-          <td>${book.year || 'N/A'}</td>
           <td>
-            ${renderStatus(book)}
+            <span class="${statusClass} fw-semibold">
+              <i class="bi ${statusIcon} status-icon me-1"></i>
+              ${statusText}
+            </span>
           </td>
           <td>
             <div class="d-flex gap-2">
-              <button class="btn btn-sm btn-outline-primary action-btn" onclick="editBook(${book.book_id})">
-                <i class="bi bi-pencil me-1"></i>Edit
-              </button>
-              <button class="btn btn-sm btn-outline-danger action-btn" onclick="deleteBook(${book.book_id})">
-                <i class="bi bi-trash me-1"></i>Delete
-              </button>
+              ${isAvailable ? 
+                `<button class="btn btn-sm btn-success action-btn" onclick="handleBorrow(${book.book_id || book.id})">
+                  <i class="bi bi-book-plus me-1"></i>Borrow
+                </button>` :
+                `<button class="btn btn-sm btn-warning action-btn" onclick="handleReturn(${book.book_id || book.id})">
+                  <i class="bi bi-book-check me-1"></i>Return
+                </button>`
+              }
             </div>
           </td>
         </tr>
-      `).join('');
+      `;
+      }).join('');
     }
 
     // Filter books based on search input and selected filters
@@ -469,13 +486,12 @@
         // Search filter
         const matchesSearch = !searchTerm || 
           book.title.toLowerCase().includes(searchTerm) ||
-          book.author.toLowerCase().includes(searchTerm) ||
-          book.isbn.includes(searchTerm);
+          book.author.toLowerCase().includes(searchTerm);
         
         // Category filter (matches type_id)
         const matchesCategory = !categoryId || book.type_id === categoryId;
         
-        // Status filter (derived from available_copies)
+        // Status filter (derived from availability_status)
         const currentStatus = getBookStatus(book);
         const matchesStatus = !status || currentStatus === status;
         
@@ -487,33 +503,10 @@
 
     // --- CRUD Operations (Simulated) ---
 
-    // Add a new book
+    // Add a new book (deprecated - now handled by API)
     function addBook(bookData) {
-      // Basic frontend validation for required fields
-      if (!bookData.title || !bookData.author || !bookData.isbn || !bookData.type_id || bookData.total_copies === undefined || bookData.total_copies < 1) {
-          alert("Please fill in all required fields correctly (Title, Author, ISBN, Category, Total Copies).");
-          return;
-      }
-
-      // Simulate generating a new book_id (backend should handle this)
-      const newBookId = books.length > 0 ? Math.max(...books.map(b => b.book_id)) + 1 : 1;
-      
-      const newBook = {
-        book_id: newBookId,
-        ...bookData,
-        available_copies: bookData.total_copies, // Initially, all copies are available
-      };
-      
-      books.push(newBook); // Add to our mock data array
-      renderBooksTable();  // Update the table display
-      
-      // Close modal and reset form
-      const modal = bootstrap.Modal.getInstance(document.getElementById('addBookModal'));
-      modal.hide();
-      addBookForm.reset();
-      addBookForm.querySelector('#bookCategory').value = ""; // Reset select to placeholder
-      
-      alert('Book added successfully!'); // User feedback
+      // This function is no longer used - addBookAPI is used instead
+      console.warn("addBook is deprecated - use addBookAPI instead");
     }
 
     // Edit book: Populate the edit modal with book data
@@ -535,10 +528,6 @@
             <input type="text" class="form-control" id="editAuthor" value="${escapeHTML(book.author)}" required>
           </div>
           <div class="col-md-6">
-            <label for="editIsbn" class="form-label">ISBN *</label>
-            <input type="text" class="form-control" id="editIsbn" value="${escapeHTML(book.isbn)}" required>
-          </div>
-          <div class="col-md-6">
             <label for="editCategory" class="form-label">Category *</label>
             <select class="form-select" id="editCategory" required>
               <option value="">Select category</option>
@@ -548,18 +537,6 @@
                 </option>
               `).join('')}
             </select>
-          </div>
-          <div class="col-md-6">
-            <label for="editPublisher" class="form-label">Publisher</label>
-            <input type="text" class="form-control" id="editPublisher" value="${escapeHTML(book.publisher || '')}">
-          </div>
-          <div class="col-md-6">
-            <label for="editYear" class="form-label">Published Year</label>
-            <input type="number" class="form-control" id="editYear" value="${book.year || ''}" min="1900" max="2024">
-          </div>
-          <div class="col-md-6">
-            <label for="editTotalCopies" class="form-label">Total Copies *</label>
-            <input type="number" class="form-control" id="editTotalCopies" value="${book.total_copies}" min="1" required>
           </div>
           <div class="col-12">
             <label for="editDescription" class="form-label">Description</label>
@@ -584,43 +561,24 @@
       // Get updated values from the edit form
       const updatedTitle = document.getElementById('editTitle').value.trim();
       const updatedAuthor = document.getElementById('editAuthor').value.trim();
-      const updatedIsbn = document.getElementById('editIsbn').value.trim();
       const updatedCategoryId = parseInt(document.getElementById('editCategory').value);
-      const updatedPublisher = document.getElementById('editPublisher').value.trim();
-      const updatedYear = parseInt(document.getElementById('editYear').value) || null;
-      const updatedTotalCopies = parseInt(document.getElementById('editTotalCopies').value);
       const updatedDescription = document.getElementById('editDescription').value.trim();
 
       // Basic frontend validation
-      if (!updatedTitle || !updatedAuthor || !updatedIsbn || !updatedCategoryId || updatedTotalCopies === undefined || updatedTotalCopies < 1) {
-          alert("Please fill in all required fields correctly (Title, Author, ISBN, Category, Total Copies).");
+      if (!updatedTitle || !updatedAuthor || !updatedCategoryId) {
+          alert("Please fill in all required fields correctly (Title, Author, Category).");
           return;
       }
 
       const originalBook = books[bookIndex];
-      const originalTotalCopies = originalBook.total_copies;
       
       const updatedBook = {
         ...originalBook, // Preserve existing properties like book_id
         title: updatedTitle,
         author: updatedAuthor,
-        isbn: updatedIsbn,
         type_id: updatedCategoryId,
-        publisher: updatedPublisher,
-        year: updatedYear,
-        total_copies: updatedTotalCopies,
         description: updatedDescription,
       };
-      
-      // Logic to adjust available_copies when total_copies changes
-      if (updatedTotalCopies !== originalTotalCopies) {
-          if (updatedTotalCopies > originalTotalCopies) {
-              updatedBook.available_copies = originalBook.available_copies + (updatedTotalCopies - originalTotalCopies);
-          } else { // updatedTotalCopies < originalTotalCopies
-              updatedBook.available_copies = Math.min(originalBook.available_copies, updatedTotalCopies);
-          }
-          if (updatedBook.available_copies < 0) updatedBook.available_copies = 0;
-      }
 
       books[bookIndex] = updatedBook; // Update the book in our mock data array
       renderBooksTable(); // Re-render the table to show changes
@@ -648,24 +606,59 @@
       statusFilter.addEventListener('change', filterBooks);
       
       // Event listener for the "Save Book" button in the add modal
-      saveBookBtn.addEventListener('click', function() {
+      saveBookBtn.addEventListener('click', async function() {
         if (!addBookForm.checkValidity()) {
           addBookForm.reportValidity();
           return;
         }
+
+        // Check if user is logged in and is admin
+        const currentUserStr = localStorage.getItem("currentUser");
+        if (!currentUserStr) {
+          alert("Please login first");
+          window.location.href = "login.html";
+          return;
+        }
+
+        const currentUser = JSON.parse(currentUserStr);
+        if (Number(currentUser.is_admin) !== 1) {
+          alert("Admins only");
+          return;
+        }
         
-        const bookData = {
-          title: document.getElementById('bookTitle').value.trim(),
-          author: document.getElementById('bookAuthor').value.trim(),
-          isbn: document.getElementById('bookIsbn').value.trim(),
-          type_id: parseInt(document.getElementById('bookCategory').value), // Ensure it's a number
-          publisher: document.getElementById('bookPublisher').value.trim(),
-          year: parseInt(document.getElementById('bookYear').value) || null,
-          total_copies: parseInt(document.getElementById('bookTotalCopies').value),
-          description: document.getElementById('bookDescription').value.trim()
+        // Read form fields
+        const title = document.getElementById('bookTitle').value.trim();
+        const author = document.getElementById('bookAuthor').value.trim();
+        const description = document.getElementById('bookDescription').value.trim();
+        const price = parseFloat(document.getElementById('bookPrice').value);
+        const type_id = parseInt(document.getElementById('bookCategory').value);
+
+        // Build payload
+        const payload = {
+          user_id: currentUser.user_id,
+          title,
+          author,
+          description,
+          price,
+          type_id
         };
-        
-        addBook(bookData);
+
+        try {
+          // Call backend API
+          await addBookAPI(payload);
+          
+          // On success: close modal, clear form, show success alert, refresh book list
+          const modal = bootstrap.Modal.getInstance(document.getElementById('addBookModal'));
+          modal.hide();
+          addBookForm.reset();
+          addBookForm.querySelector('#bookCategory').value = "";
+          showAlert("Book added successfully!", "success");
+          await loadBooksFromAPI();
+        } catch (error) {
+          // On failure: alert the returned message
+          const errorMessage = error.message.replace(/^HTTP \d+: /, "");
+          alert(errorMessage);
+        }
       });
       
       // Event listener for the "Update Book" button in the edit modal
@@ -683,6 +676,8 @@
     // --- Expose functions to be called by inline HTML onclick attributes ---
     window.editBook = editBook;
     window.deleteBook = deleteBook;
+    window.handleBorrow = handleBorrow;
+    window.handleReturn = handleReturn;
 
   </script>
 </body>
