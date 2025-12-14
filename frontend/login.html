@@ -95,6 +95,38 @@
         <a href="#" class="link-primary link-underline-opacity-0 link-underline-opacity-100-hover">Contact administrator</a>
       </p>
     </form>
+
+    <!-- Demo Accounts Section -->
+    <div class="mx-auto px-3 mt-4" style="max-width: 520px;">
+      <div class="alert alert-info mb-3">
+        <h6 class="alert-heading mb-3">Demo Accounts (for grading)</h6>
+        <p class="small mb-2">Admin can add books; User can borrow/return.</p>
+        
+        <!-- Admin Demo Account -->
+        <div class="mb-3 p-2 bg-white rounded border">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <strong>Admin Demo</strong>
+            <button type="button" class="btn btn-sm btn-outline-primary" id="fillAdminBtn">Auto-fill</button>
+          </div>
+          <div class="small">
+            <div>Username: <code>admin</code></div>
+            <div>Password: <code>admin123</code></div>
+          </div>
+        </div>
+
+        <!-- User Demo Account -->
+        <div class="p-2 bg-white rounded border">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <strong>User Demo</strong>
+            <button type="button" class="btn btn-sm btn-outline-primary" id="fillUserBtn">Auto-fill</button>
+          </div>
+          <div class="small">
+            <div>Username: <code>bob</code></div>
+            <div>Password: <code>bob123</code></div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
@@ -106,12 +138,37 @@
       const form = document.getElementById('loginForm');
       const togglePwdBtn = document.getElementById('togglePwd');
       const pwdInput = document.getElementById('password');
+      const accountInput = document.getElementById('account');
+      const fillAdminBtn = document.getElementById('fillAdminBtn');
+      const fillUserBtn = document.getElementById('fillUserBtn');
 
       // Show/Hide password only
       togglePwdBtn.addEventListener('click', () => {
         const isPwd = pwdInput.type === 'password';
         pwdInput.type = isPwd ? 'text' : 'password';
         togglePwdBtn.textContent = isPwd ? 'Hide' : 'Show';
+      });
+
+      // Auto-fill Admin Demo account
+      fillAdminBtn.addEventListener('click', () => {
+        accountInput.value = 'admin';
+        pwdInput.value = 'admin123';
+        // Reset password field type to password if it was shown
+        if (pwdInput.type === 'text') {
+          pwdInput.type = 'password';
+          togglePwdBtn.textContent = 'Show';
+        }
+      });
+
+      // Auto-fill User Demo account
+      fillUserBtn.addEventListener('click', () => {
+        accountInput.value = 'bob';
+        pwdInput.value = 'bob123';
+        // Reset password field type to password if it was shown
+        if (pwdInput.type === 'text') {
+          pwdInput.type = 'password';
+          togglePwdBtn.textContent = 'Show';
+        }
       });
 
       // Handle form submission

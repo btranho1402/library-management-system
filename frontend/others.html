@@ -68,6 +68,7 @@
         <hr class="my-4"> <!-- Separator -->
 
         <h5 class="mb-3">Change Password</h5>
+        <p class="text-muted small mb-3">Password change not implemented in this demo.</p>
         
         <!-- Old Password + toggle -->
         <div class="mb-3">
@@ -128,7 +129,7 @@
 
         <!-- Save Button -->
         <div class="d-grid mt-4">
-          <button type="submit" class="btn btn-primary">Save Changes</button>
+          <button type="submit" class="btn btn-primary" disabled>Save Changes</button>
         </div>
 
         <hr class="my-4">
@@ -153,16 +154,6 @@
           crossorigin="anonymous"></script>
   
   <script>
-    // --- Mock User Data ---
-    // In a real application, this would come from the currently logged-in user's session or API response.
-    // This simulates data obtained after a successful login.
-    const currentUser = {
-        user_id: 1,
-        user_name: "alice", // Corresponds to DB user_name
-        is_admin: 0,       // Corresponds to DB is_admin (0 for User, 1 for Administrator)
-        // password_hash is not exposed to frontend
-    };
-
     // --- DOM Elements ---
     const settingsForm = document.getElementById('settingsForm');
     const displayNameEl = document.getElementById('displayName');
@@ -177,6 +168,15 @@
 
     // --- Initialization ---
     document.addEventListener('DOMContentLoaded', function() {
+      // Read currentUser from localStorage
+      const currentUserStr = localStorage.getItem("currentUser");
+      if (!currentUserStr) {
+        // If not logged in, redirect to login page
+        window.location.href = "login.html";
+        return;
+      }
+
+      const currentUser = JSON.parse(currentUserStr);
       displayUserInfo(currentUser); // Populate user info
       setupEventListeners();         // Set up event listeners
     });
@@ -204,88 +204,16 @@
     // Handle form submission for changing password
     function handleChangePassword(event) {
       event.preventDefault(); // Prevent default form submission
-
-      const oldPassword = oldPasswordInput.value;
-      const newPassword = newPasswordInput.value;
-      const confirmNewPassword = confirmNewPasswordInput.value;
-
-      // Frontend validation checks
-      if (newPassword !== confirmNewPassword) {
-        alert("New password and confirm new password do not match.");
-        return;
-      }
-      if (newPassword.length < 6) { // Example: Minimum password length requirement
-        alert("New password must be at least 6 characters long.");
-        return;
-      }
-
-      // --- Backend Integration Placeholder ---
-      // In a real application, you would send the collected data to your backend API.
-      // The backend would verify the old password against the stored hash,
-      // and if correct, hash the new password and update the user record.
-      // Example API call structure:
-      /*
-      fetch('/api/change-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-            userId: currentUser.user_id, // Pass user ID if needed by backend
-            oldPassword: oldPassword, 
-            newPassword: newPassword 
-        })
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          alert('Password changed successfully!');
-          settingsForm.reset(); // Reset form on success
-          // Reset password toggles to default state
-          toggleOldPwdBtn.textContent = 'Show'; oldPasswordInput.type = 'password';
-          toggleNewPwdBtn.textContent = 'Show'; newPasswordInput.type = 'password';
-          toggleConfirmPwdBtn.textContent = 'Show'; confirmNewPasswordInput.type = 'password';
-        } else {
-          alert('Password change failed: ' + data.message); // Display error message from backend
-        }
-      })
-      .catch(error => {
-        console.error('Error changing password:', error);
-        alert('An error occurred while changing password. Please try again later.');
-      });
-      */
-      
-      // --- Simulation for Frontend Demo ---
-      // This part simulates the result of a successful or failed backend operation.
-      alert(`Simulating password change submission for user "${currentUser.user_name}".\n` +
-            `Old Password: ${oldPassword}\n` +
-            `New Password: ${newPassword}\n` +
-            `(This is a simulation. No actual password change occurred.)`);
-      
-      // Reset form and toggles as if the operation was successful
-      settingsForm.reset(); 
-      toggleOldPwdBtn.textContent = 'Show'; oldPasswordInput.type = 'password';
-      toggleNewPwdBtn.textContent = 'Show'; newPasswordInput.type = 'password';
-      toggleConfirmPwdBtn.textContent = 'Show'; confirmNewPasswordInput.type = 'password';
+      // Password change is disabled - button is disabled, so this should not be called
     }
 
     // Handle user logout
     function handleLogout() {
       if (confirm("Are you sure you want to log out?")) {
-        // --- Backend Integration Placeholder for Logout ---
-        // In a real application, you would invalidate the user's session or token on the backend.
-        // Example:
-        // fetch('/api/logout', { method: 'POST' })
-        // .then(() => {
-        //   // After successful logout on backend, redirect to login page
-        //   window.location.href = 'login.html'; 
-        // })
-        // .catch(error => {
-        //   console.error('Logout error:', error);
-        //   alert('Error during logout. Please try again.');
-        // });
-
-        // --- Simulation for Frontend Demo ---
-        alert("Logging out...");
-        window.location.href = 'login.html'; // Redirect to login page for simulation
+        // Clear localStorage (remove currentUser)
+        localStorage.removeItem('currentUser');
+        // Redirect to login page
+        window.location.href = 'login.html';
       }
     }
 
