@@ -49,7 +49,7 @@ exports.handler = async (event) => {
       return jsonResponse(403, { success: false, message: "Admins only" });
     }
 
-    // Insert book (matches your schema!)
+    // Insert book
     const [result] = await conn.execute(
       `INSERT INTO book (title, author, description, price, type_id, availability_status)
        VALUES (?, ?, ?, ?, ?, ?)`,

@@ -232,10 +232,7 @@
   
   <script src="./api.js"></script>
   <script>
-    // --- Mock Data & Configuration ---
-    // In a real application, this data would be fetched from your backend API.
 
-    // Mock Categories from your book_type table
     const bookCategories = [
       { type_id: 1, type_name: "Fiction" },
       { type_id: 2, type_name: "Non-Fiction" },
@@ -245,10 +242,9 @@
       { type_id: 6, type_name: "Biography" }
     ];
 
-    // Mock Books data - this is now replaced by API data
     let books = [];
 
-    // --- DOM Elements ---
+    // DOM Elements
     const booksTableBody = document.getElementById('booksTableBody');
     const searchInput = document.getElementById('searchInput');
     const categoryFilter = document.getElementById('categoryFilter');
@@ -262,10 +258,10 @@
     const editBookForm = document.getElementById('editBookForm');
     const updateBookBtn = document.getElementById('updateBookBtn');
 
-    // --- State Variables ---
-    let currentEditBookId = null; // To keep track of the book being edited
+    // State Variables
+    let currentEditBookId = null;
 
-    // --- Initialization ---
+    // Initialization
     document.addEventListener('DOMContentLoaded', async function() {
       // Check if user is logged in and admin status
       const currentUserStr = localStorage.getItem("currentUser");
@@ -289,7 +285,7 @@
       setupEventListeners();     // Set up event listeners for interactions
     });
 
-    // --- API Integration ---
+    // API Integration
     async function loadBooksFromAPI() {
       try {
         const response = await apiGet("/books");
@@ -377,7 +373,7 @@
       }
     }
 
-    // --- Helper Functions ---
+    // Helper Functions
 
     // Populate category select elements with options from bookCategories
     function populateCategorySelects() {
@@ -412,19 +408,15 @@
       const icons = {
         'available': 'bi-check-circle-fill',
         'borrowed': 'bi-x-circle-fill',
-        'reserved': 'bi-clock-fill' // Note: actual 'reserved' logic needs backend
+        'reserved': 'bi-clock-fill' 
       };
       return icons[status] || 'bi-question-circle-fill';
     }
 
     // Determine the book's current status based on availability_status
     function getBookStatus(book) {
-        // availability_status: 1 = available, 0 = borrowed
         return book.availability_status === 1 ? 'available' : 'borrowed';
     }
-
-
-    // --- Table Rendering and Filtering ---
 
     // Render the books table with the provided array of books
     function renderBooksTable(booksToRender = books) {
@@ -442,7 +434,7 @@
       }
 
       booksTableBody.innerHTML = booksToRender.map(book => {
-        // Determine status based on availability_status (1 = available, 0 = borrowed)
+        // Determine status based on availability_status
         const isAvailable = book.availability_status === 1;
         const statusText = isAvailable ? 'Available' : 'Borrowed';
         const statusClass = isAvailable ? 'status-available' : 'status-borrowed';
@@ -492,7 +484,7 @@
     function filterBooks() {
       const searchTerm = searchInput.value.toLowerCase();
       const categoryId = parseInt(categoryFilter.value); // Get category type_id
-      const status = statusFilter.value; // e.g., "available", "borrowed"
+      const status = statusFilter.value;
 
       const filtered = books.filter(book => {
         // Search filter
@@ -513,9 +505,9 @@
       renderBooksTable(filtered); // Re-render table with filtered results
     }
 
-    // --- CRUD Operations (Simulated) ---
+    // CRUD Operations
 
-    // Add a new book (deprecated - now handled by API)
+    // Add a new book
     function addBook(bookData) {
       // This function is no longer used - addBookAPI is used instead
       console.warn("addBook is deprecated - use addBookAPI instead");
@@ -610,7 +602,7 @@
       }
     }
 
-    // --- Event Listeners Setup ---
+    // Event Listeners Setup
     function setupEventListeners() {
       // Live filtering as user types or changes selections
       searchInput.addEventListener('input', filterBooks);
@@ -666,7 +658,6 @@
           // Call backend API
           await addBookAPI(payload);
           
-          // On success: close modal, clear form, show success alert, refresh book list
           const modal = bootstrap.Modal.getInstance(document.getElementById('addBookModal'));
           modal.hide();
           addBookForm.reset();
@@ -691,7 +682,7 @@
       updateBookBtn.addEventListener('click', updateBook);
     }
 
-    // --- Utility for HTML escaping (prevents XSS) ---
+    // Utility for HTML escaping
     function escapeHTML(str) {
         if (typeof str !== 'string') return str; // Return non-strings as is
         const div = document.createElement('div');
@@ -699,7 +690,7 @@
         return div.innerHTML;
     }
 
-    // --- Expose functions to be called by inline HTML onclick attributes ---
+    // Expose functions to be called by inline HTML onclick attributes
     window.editBook = editBook;
     window.deleteBook = deleteBook;
     window.handleBorrow = handleBorrow;

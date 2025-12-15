@@ -67,7 +67,7 @@ exports.handler = async (event) => {
       [user_id, book_id]
     );
 
-    //Mark book as borrowed(availability_status = 0)
+    //Mark book as borrowed
     await conn.execute(
       "UPDATE book SET availability_status = 0 WHERE book_id = ?",
       [book_id]

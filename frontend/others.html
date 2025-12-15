@@ -51,18 +51,16 @@
       
       <!-- Form -->
       <form class="mx-auto px-3 mt-4" style="max-width: 520px;" id="settingsForm">
-        <!-- Username-- Return by DB -->
+        <!-- Username -->
         <div class="mb-3">
           <label class="form-label">Username</label>
           <input type="text" class="form-control" id="displayName" value="Loading..." readonly>
-          <!-- NOTE: 'Loading...' is a placeholder. It will be replaced by the real username. -->
         </div>
 
-        <!-- User Role (Optional, based on your DB's 'is_admin' or similar) -->
+        <!-- User Role -->
         <div class="mb-3">
             <label class="form-label">Role</label>
             <input type="text" class="form-control" id="userRole" value="Loading..." readonly>
-            <!-- e.g., User, Administrator -->
         </div>
 
         <hr class="my-4"> <!-- Separator -->
@@ -89,7 +87,7 @@
           </div>
         </div>
 
-        <!-- New Password + toggle -->
+        <!-- New Password -->
         <div class="mb-3">
           <label for="newPassword" class="form-label">New Password</label>
           <div class="input-group">
@@ -108,7 +106,7 @@
           </div>
         </div>
         
-        <!-- Confirm New Password + toggle -->
+        <!-- Confirm New Password -->
         <div class="mb-3">
             <label for="confirmNewPassword" class="form-label">Confirm New Password</label>
             <div class="input-group">
@@ -154,7 +152,7 @@
           crossorigin="anonymous"></script>
   
   <script>
-    // --- DOM Elements ---
+    // DOM Elements
     const settingsForm = document.getElementById('settingsForm');
     const displayNameEl = document.getElementById('displayName');
     const userRoleEl = document.getElementById('userRole');
@@ -166,7 +164,7 @@
     const toggleConfirmPwdBtn = document.getElementById('toggleConfirmPwd');
     const logoutBtn = document.getElementById('logoutBtn');
 
-    // --- Initialization ---
+    // Initialization
     document.addEventListener('DOMContentLoaded', function() {
       // Read currentUser from localStorage
       const currentUserStr = localStorage.getItem("currentUser");
@@ -181,9 +179,9 @@
       setupEventListeners();         // Set up event listeners
     });
 
-    // --- Functions ---
+    // Functions 
 
-    // Display user information (username and role)
+    // Display user information 
     function displayUserInfo(user) {
       if (!user) { // Handle case where user data is not available
         displayNameEl.value = "Not logged in";
@@ -210,7 +208,7 @@
     // Handle user logout
     function handleLogout() {
       if (confirm("Are you sure you want to log out?")) {
-        // Clear localStorage (remove currentUser)
+        // Clear localStorage
         localStorage.removeItem('currentUser');
         // Redirect to login page
         window.location.href = 'login.html';
@@ -224,7 +222,7 @@
       toggleNewPwdBtn.addEventListener('click', () => togglePasswordVisibility(newPasswordInput, toggleNewPwdBtn));
       toggleConfirmPwdBtn.addEventListener('click', () => togglePasswordVisibility(confirmNewPasswordInput, toggleConfirmPwdBtn));
 
-      // Event listener for the form submission (password change)
+      // Event listener for the form submission 
       settingsForm.addEventListener('submit', handleChangePassword);
 
       // Event listener for the logout button

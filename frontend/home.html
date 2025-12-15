@@ -131,33 +131,27 @@
           crossorigin="anonymous"></script>
   
   <script>
-    // --- Mock Data for Home Page Statistics ---
-    // In a real application, these would be fetched from backend API endpoints.
-    // These values are derived from the mock 'books' array in books_management.html and mock 'users' data.
     const mockStats = {
-      totalBooks: 150, // Placeholder, would be fetched from backend count of all books
-      availableCopies: 85, // Placeholder, would be calculated from backend
-      currentlyBorrowed: 65, // Placeholder, calculated as total - available
-      activeUsers: 25 // Placeholder, would be fetched from backend user count
+      totalBooks: 150, 
+      availableCopies: 85, 
+      currentlyBorrowed: 65, 
+      activeUsers: 25 
     };
 
-    // --- DOM Elements ---
+    // DOM Elements
     const totalBooksStatEl = document.getElementById('totalBooksStat');
     const availableBooksStatEl = document.getElementById('availableBooksStat');
     const borrowedBooksStatEl = document.getElementById('borrowedBooksStat');
     const activeUsersStatEl = document.getElementById('activeUsersStat');
 
-    // --- Initialization ---
+    // Initialization
     document.addEventListener('DOMContentLoaded', function() {
       displayStatistics(); // Load and display statistics
     });
 
-    // --- Functions ---
+    // Functions
     function displayStatistics() {
-      // Simulate loading data and then displaying it
-      // In a real app, you would make API calls here to fetch these stats.
-      
-      // For demonstration, use mock data with a slight delay to mimic network latency.
+
       setTimeout(() => {
         totalBooksStatEl.textContent = mockStats.totalBooks;
         availableBooksStatEl.textContent = mockStats.availableCopies;
@@ -165,10 +159,6 @@
         activeUsersStatEl.textContent = mockStats.activeUsers;
       }, 500); // Simulate a 0.5 second network delay
     }
-
-    // --- Utility Functions ---
-    // Add any utility functions here if needed for the home page.
-    // For example, functions to format numbers, dates, etc.
     
   </script>
 </body>
