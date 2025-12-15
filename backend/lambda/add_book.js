@@ -3,7 +3,6 @@ const { getConnection, jsonResponse, parseJsonBody } = require("./db");
 exports.handler = async (event) => {
   let conn;
 
-  // CORS preflight
   if (event.httpMethod === "OPTIONS") {
     return {
       statusCode: 200,
